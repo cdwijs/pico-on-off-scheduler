@@ -7,8 +7,8 @@ if (TARGET tinyusb_device)
         target_link_libraries(pico-on-off-scheduler pico_stdlib)
 
         # enable usb output, disable uart output
-        pico_enable_stdio_usb(hello_usb 1)
-        pico_enable_stdio_uart(hello_usb 0)
+        pico_enable_stdio_usb(pico-on-off-scheduler 1)
+        pico_enable_stdio_uart(pico-on-off-scheduler 0)
 
         # create map/bin/hex file etc.
         pico_add_extra_outputs(pico-on-off-scheduler)
