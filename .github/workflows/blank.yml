@@ -58,4 +58,4 @@ jobs:
           compress_assets: 'OFF' # Do not put in .zip/.tar.gz
           name: full build directory
           path: |
-            build/cable-tester/cable-tester.uf2
+            build/*/*.uf2
