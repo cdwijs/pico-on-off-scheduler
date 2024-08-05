@@ -11,6 +11,9 @@
 const int hz = 1;
 const uint LED_PIN = PICO_DEFAULT_LED_PIN;
 
+const int DEFAULT_OFF_TIME = 10; //sec
+const int DEFAULT_ON_TIME = 30*60; //sec, must be higher than OFF time
+
 const uint RELAYS_PIN = 4;
 
 TMAIN myMainData;
@@ -39,14 +42,15 @@ int main()
     gpio_init(RELAYS_PIN);
     gpio_set_dir(RELAYS_PIN, GPIO_OUT);
     stdio_init_all(); //for serial communication via USB
-    
-    printf("Hello Timer!\n");
+    sleep_ms(1000); //allow cutecomm some time to reconnect
+    printf("Pico on/off scheduler starting\n");
+
 
     if (!add_repeating_timer_us(-1000000 / hz, timer_callback, NULL, &timer)) 
     {
         printf("Failed to add timer\n");
     }
-
+    myRelaysOffTime = DEFAULT_OFF_TIME;
     while (true) 
     {
         char c = getchar();
@@ -116,7 +120,6 @@ void mainLoop(void) //to be able to test one cycle of the main program
 
 bool timer_callback(repeating_timer_t *rt)
 {
-    printf("Callback\n");
     gpio_put(RELAYS_PIN, myRelaysState);
     if (myRelaysState)
     {
@@ -127,7 +130,7 @@ bool timer_callback(repeating_timer_t *rt)
         }
         else
         {
-            myRelaysOffTime = 10; //todo: make configurable
+            myRelaysOffTime = DEFAULT_OFF_TIME;
             myRelaysState = FALSE;
         }
     }
@@ -140,7 +143,7 @@ bool timer_callback(repeating_timer_t *rt)
         }
         else
         {
-            myRelaysOnTime = (30*60 - 10); //todo: make configurable
+            myRelaysOnTime = (DEFAULT_ON_TIME - DEFAULT_OFF_TIME);
             myRelaysState = TRUE;
         }
     }
