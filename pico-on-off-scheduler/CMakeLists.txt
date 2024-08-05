@@ -1,7 +1,6 @@
 if (TARGET tinyusb_device)
         add_executable(pico-on-off-scheduler
                 pico-on-off-scheduler.c
-                sampler.c
                 )
 
         # pull in common dependencies
