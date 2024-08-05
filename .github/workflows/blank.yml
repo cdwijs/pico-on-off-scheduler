@@ -1,0 +1,61 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+permissions:
+    contents: write # for creating release + uploading binaries
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - name: Install build dependenties
+        run: |
+          mkdir build &&
+          sudo apt update -y &&
+          sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
+        #run: sudo apt install libstdc++-arm-none-eabi-newlib #test if this is really needed
+
+      - name: Get Pico SDK and dependenties
+        run: | #https://stackoverflow.com/questions/59954185/github-action-split-long-command-into-multiple-lines
+          git clone https://github.com/raspberrypi/pico-sdk.git --branch master && \
+          cd pico-sdk && \
+          git submodule update --init && \
+          cd ..
+
+      - name: Compile RP2040 source
+        run: | 
+          mkdir -p build && \
+          cd build && \
+          export PICO_SDK_PATH=../pico-sdk && \
+          cmake .. && \
+          make && \
+          cd ..
+
+      #upload artifacts
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          compress_assets: 'OFF' # Do not put in .zip/.tar.gz
+          name: full build directory
+          path: |
+            build/cable-tester/cable-tester.uf2
